@@ -34,6 +34,30 @@ TEST_CASE( "construct-object-by-initializer-list", "[object]" )
 }
 
 // ----------------------------------------------------------------------------
+TEST_CASE( "object copy/move semantics", "[object]" )
+{
+  json::object o1{ { "x", 1 } };
+
+  REQUIRE( o1["x"].is_number() == true );
+  REQUIRE( o1["x"].as_number() == 1 );
+
+  auto o2 = std::move(o1);
+
+  REQUIRE( o2["x"].is_number() == true );
+  REQUIRE( o2["x"].as_number() == 1 );
+
+  REQUIRE( o1.empty() == true );
+
+  auto o3 = o2;
+
+  REQUIRE( o3["x"].is_number() == true );
+  REQUIRE( o3["x"].as_number() == 1 );
+
+  REQUIRE( o2["x"].is_number() == true );
+  REQUIRE( o2["x"].as_number() == 1 );
+}
+
+// ----------------------------------------------------------------------------
 TEST_CASE( "construct-array-by-initializer-list", "[array]" )
 {
   json::array v{ "x", "y" };
@@ -60,6 +84,38 @@ TEST_CASE( "array-range-based-for", "[array]" )
     REQUIRE( v.is_number() );
     REQUIRE( v.as_number() == 1 );
   }
+}
+
+// ----------------------------------------------------------------------------
+TEST_CASE( "array copy/move semantics", "[array]" )
+{
+  json::array a1{ 1, 2 };
+
+  REQUIRE( a1[0].is_number() == true );
+  REQUIRE( a1[0].as_number() == 1 );
+  REQUIRE( a1[1].is_number() == true );
+  REQUIRE( a1[1].as_number() == 2 );
+
+  auto a2 = std::move(a1);
+
+  REQUIRE( a2[0].is_number() == true );
+  REQUIRE( a2[0].as_number() == 1 );
+  REQUIRE( a2[1].is_number() == true );
+  REQUIRE( a2[1].as_number() == 2 );
+
+  REQUIRE( a1.empty() == true );
+
+  auto a3 = a2;
+
+  REQUIRE( a3[0].is_number() == true );
+  REQUIRE( a3[0].as_number() == 1 );
+  REQUIRE( a3[1].is_number() == true );
+  REQUIRE( a3[1].as_number() == 2 );
+
+  REQUIRE( a2[0].is_number() == true );
+  REQUIRE( a2[0].as_number() == 1 );
+  REQUIRE( a2[1].is_number() == true );
+  REQUIRE( a2[1].as_number() == 2 );
 }
 
 // ----------------------------------------------------------------------------
