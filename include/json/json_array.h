@@ -42,6 +42,8 @@ namespace json
   public:
     size_t size() { return value_.size(); }
   public:
+    bool empty() { return value_.empty(); }
+  public:
     template <typename V> void push_back(V v)
     {
       value_.push_back(std::forward<V>(v));
