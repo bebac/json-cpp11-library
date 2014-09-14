@@ -44,5 +44,5 @@ Rake::ExecutableTask.new(:test, spec)
 # -----------------------------------------------------------------------------
 CLEAN.include('build')
 # -----------------------------------------------------------------------------
-task :default => [ :spotd ]
+task :default => [ :test ]
 task :all => [ :default ]
