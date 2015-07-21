@@ -119,6 +119,68 @@ TEST_CASE( "array copy/move semantics", "[array]" )
 }
 
 // ----------------------------------------------------------------------------
+TEST_CASE( "implicit-convert-to-string", "[value]" )
+{
+  auto v1 = json::value{"x"};
+
+  auto func = [](std::string s) {
+    REQUIRE( s == "x" );
+  };
+
+  func(v1);
+
+  REQUIRE(v1.is_string() == true);
+  REQUIRE(v1.as_string() == "x");
+}
+
+// ----------------------------------------------------------------------------
+TEST_CASE( "implicit-convert-to-double", "[value]" )
+{
+  auto v1 = json::value{1.0};
+
+  auto func = [](double x) {
+    REQUIRE( x == 1.0 );
+  };
+
+  func(v1);
+
+  REQUIRE(v1.is_number() == true);
+  REQUIRE(v1.as_number() == 1.0);
+}
+
+// ----------------------------------------------------------------------------
+TEST_CASE( "implicit-convert-to-object", "[value]" )
+{
+  json::value  v1 = json::object{ { "x", 1 } };
+
+  auto func = [](json::object o) {
+    REQUIRE( o["x"].is_number() == true );
+    REQUIRE( o["x"].as_number() == 1 );
+  };
+
+  func(v1);
+
+  REQUIRE(v1.is_object() == true);
+}
+
+// ----------------------------------------------------------------------------
+TEST_CASE( "implicit-convert-to-array", "[value]" )
+{
+  json::value  v1 = json::array{ "x", 1 };
+
+  auto func = [](json::array o) {
+    REQUIRE( o[0].is_string() == true );
+    REQUIRE( o[0].as_string() == "x" );
+    REQUIRE( o[1].is_number() == true );
+    REQUIRE( o[1].as_number() == 1 );
+  };
+
+  func(v1);
+
+  REQUIRE(v1.is_array() == true);
+}
+
+// ----------------------------------------------------------------------------
 TEST_CASE( "string-escape", "[array]" )
 {
   // char = unescaped /
@@ -316,7 +378,8 @@ TEST_CASE( "parse-simple-object", "[parser]" )
   REQUIRE( obj["n"].as_number() == 1.234 );
 
   REQUIRE( obj["z"].is_null() == true );
-  REQUIRE( obj["i"].is_false() == true );
+  REQUIRE( obj["i"].is_bool() == true );
+  REQUIRE( obj["i"].as_bool() == false );
 }
 
 // ----------------------------------------------------------------------------
@@ -325,7 +388,7 @@ TEST_CASE( "parse-object-with-array-value", "[parser]" )
   json::value  value;
   json::parser parser(value);
 
-  const char buf[] = "{ \"x\" : [ \"y\", 1.234 ] }";
+  const char buf[] = "{ \"x\" : [ \"y\", 1.234, true ] }";
 
   size_t consumed = parser.parse(buf, sizeof(buf)-1);
 
@@ -334,10 +397,18 @@ TEST_CASE( "parse-object-with-array-value", "[parser]" )
 
   REQUIRE( value.is_object() == true );
 
-  json::object obj = value.as_object();
+  json::object obj = value;
 
   REQUIRE( obj["x"].is_array() == true );
-  //REQUIRE( obj["x"].as_string() == "y" );
+
+  json::array a = obj["x"];
+
+  REQUIRE( a[0].is_string() == true );
+  REQUIRE( a[0].as_string() == "y" );
+  REQUIRE( a[1].is_number() == true );
+  REQUIRE( a[1].as_number() == 1.234 );
+  REQUIRE( a[2].is_bool() == true );
+  REQUIRE( a[2].as_bool() == true );
 }
 
 // ----------------------------------------------------------------------------
